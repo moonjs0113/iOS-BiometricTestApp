@@ -1,0 +1,17 @@
+# git ignore file
+
+#
+.DS_Store
+xcuserdata/
+*.sh
+
+### Xcode Patch ###
+*.xcodeproj/project.pbxproj
+*.xcodeproj/xcshareddata/
+
+## User settings
+xcuserdata/
+
+# ipa & zip file
+*.ipa
+*.zip
