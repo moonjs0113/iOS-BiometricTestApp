@@ -10,30 +10,50 @@ import LocalAuthentication
 
 enum BioError: Error {
     case General
+    case Lockout
     case NoEvaluate
+    case NotPermission
+    case NotEnrolled
 }
 
-protocol LAContextProtocol {
-    func canEvaluatePolicy(_ : LAPolicy, error: NSErrorPointer) -> Bool
-    func evaluatePolicy(_ policy: LAPolicy, localizedReason: String, reply: @escaping (Bool, Error?) -> Void)
-}
+//protocol LAContextProtocol {
+//    func canEvaluatePolicy(_ : LAPolicy, error: NSErrorPointer) -> Bool
+//    func evaluatePolicy(_ policy: LAPolicy, localizedReason: String, reply: @escaping (Bool, Error?) -> Void)
+//}
 
 
 class BiometricManager {
     let context: LAContext
+    var e: NSError?
     
     init(context: LAContext = LAContext() ) {
         self.context = context
+        self.context.localizedFallbackTitle = ""
     }
     
-    func canEvaluatePolicy() -> Bool {
-        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+    
+    func canEvaluatePolicy(_ e: NSErrorPointer) -> Bool {
+        let canEvalutePolicy = self.context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: e)
+        return canEvalutePolicy
     }
     
     
     func authenticateUser(completion: @escaping (Result<String, Error>) -> Void) {
-        guard canEvaluatePolicy() else {
-            completion( .failure(BioError.NoEvaluate) )
+//        print(self.context.isCredentialSet(.applicationPassword))
+        guard self.canEvaluatePolicy(&e) else {
+            print(self.e as? LAError)
+            if let e = self.e as? LAError {
+                switch e.code {
+                case .biometryLockout:
+                    completion(.failure(BioError.Lockout))
+                case .biometryNotAvailable:
+                    completion(.failure(BioError.NotPermission))
+                case .biometryNotEnrolled:
+                    completion(.failure(BioError.NotEnrolled))
+                default:
+                    completion(.failure(BioError.General))
+                }
+            }
             return
         }
         
@@ -50,17 +70,15 @@ class BiometricManager {
         }
         let loginReason = "Log in with \(biometryType)"
         
-        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: loginReason) { (success, evaluateError) in
+        self.context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: loginReason) { (success, evaluateError) in
             if success {
                 DispatchQueue.main.async {
-                    // User authenticated successfully
-                    completion(.success("Success"))
+                    completion(.success("true"))
                 }
             } else {
-                switch evaluateError {
-                default: completion(.failure(BioError.General))
+                DispatchQueue.main.async {
+                    completion(.failure(BioError.General))
                 }
-                
             }
         }
     }
