@@ -56,15 +56,36 @@ UISwitch를 통해서 변경가능하도록 설정
     인증 진행 시 나타나는 Alert에 나타난다.
 
 # Project Description
-## Exception Handling
-### Error Enum
+
+## Manager
 ``` Swift
-enum BioError: Error {
-    case EvaluateError
-    case General
-    case Lockout
-    case NoEvaluate
-    case NotPermission
-    case NotEnrolled
+// ViewController.swift
+BiometricManager(policy: policy).authenticateUser { [weak self] (response) in
+    DispatchQueue.main.async {
+        self?.LAResultHandling(result: response)
+    }
 }
 ```
+``` Swift
+// BiometricManager.swift
+// Class deinit Check
+deinit {
+    print("BiometricManager Deinitialize")
+}
+...
+```
+
+
+## Exception Handling
+
+``` Swift
+enum BioError: Error {
+    case EvaluateError // 생체 인증 정보 미일치
+    case General // 인증 불가 기기 등 일반적 인증 실패
+    case Lockout // 생체 인증 실패 횟수(5회) 초과
+    case NoEvaluate // 실행 불가
+    case NotPermission // 생체 인증 권한 없음
+    case NotEnrolled // 생체 인증 미등록
+}
+```
+LAError도 존재하지만 BioError를 작성하여 핸들링하기 쉽도록 함.

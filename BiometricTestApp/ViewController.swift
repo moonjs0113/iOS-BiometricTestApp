@@ -18,7 +18,7 @@ class ViewController: UIViewController {
         case .success:
             self.alertLocalAuthenticationSuccess()
         case .failure(let e):
-            switch e as? BioError {
+            switch e {
             case .Lockout:
                 self.alertLocalAuthenticationLockout()
             case .NotPermission:
@@ -55,11 +55,11 @@ class ViewController: UIViewController {
     // MARK: - IBActions
     @IBAction func runBioAuth(_ sender: UIButton) {
         let policy: LAPolicy = self.policySwitch.isOn ? .deviceOwnerAuthentication : .deviceOwnerAuthenticationWithBiometrics
-        BiometricManager(policy: policy).authenticateUser(completion: { [weak self] (response) in
+        BiometricManager(policy: policy).authenticateUser{ [weak self] (response) in
             DispatchQueue.main.async {
                 self?.LAResultHandling(result: response)
             }
-        })
+        }
     }
     
     // MARK: - Life Cycles
