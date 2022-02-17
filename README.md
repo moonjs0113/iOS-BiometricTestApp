@@ -12,7 +12,12 @@ iOS 생체인증(FaceID, TouchID) 적용 테스트를 위한 프로젝트입니�
 인증 클래스의 사용과 인증 실패에 대한 예외처리를 학습합니다.
 
 # App Image
+<center>
 
+| <div style="height:500px"> ![TouchIDImage](./Image/TouchID.PNG)</div> | <div style="height:500px"> ![FaceIDImage](./Image/FaceID.PNG) </div> | 
+| - | - |   
+
+</center>
 
 # Requirments
 - iOS 13.0+
