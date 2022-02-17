@@ -21,6 +21,19 @@ Xcode내에 별도의 설정없이 import 해서 사용한다.
 ``` Swift
 import LocalAuthentication
 ```
+
+## Policy
+인증 정책으로는 총 4가지가 있지만 iOS에서 사용가능한 정책은 2가지다.
+``` Swift
+public enum LAPolicy : Int {
+    @available(iOS 8.0, *)
+    case deviceOwnerAuthenticationWithBiometrics = 1
+
+    @available(iOS 9.0, *)
+    case deviceOwnerAuthentication = 2
+}
+```
+
 ## Method
 ``` Swift
 // 생체인증 실행가능 여부 판단
@@ -30,3 +43,14 @@ func canEvaluatePolicy(LAPolicy, error: NSErrorPointer) -> Bool
 // 인증 성공과 실패만 반환한다.
 func evaluatePolicy(LAPolicy, localizedReason: String, reply: (Bool, Error?) -> Void)
 ```
+UISwitch를 통해서 변경가능하도록 설정
+
+## Description Setting
+- FaceID   
+    Info.plist -> Privacy - Face ID Usage Description   
+    생체인증 권한 수락을 위한 안내 문구를 작성해야한다.   
+    해당 문구는 권한 Alert에 표시된다.
+- TouchID   
+    evaluatePolicy의 localizedReason에 파라미터로 보낸다.
+    인증 진행 시 나타나는 Alert에 나타난다.
+

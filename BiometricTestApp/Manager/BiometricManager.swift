@@ -9,6 +9,7 @@ import Foundation
 import LocalAuthentication
 
 enum BioError: Error {
+    case EvaluateError
     case General
     case Lockout
     case NoEvaluate
@@ -18,25 +19,30 @@ enum BioError: Error {
 
 class BiometricManager {
     // 생체인증 클래스
-    let context: LAContext
-    var policy: LAPolicy
-    var e: NSError?
+    private let context: LAContext
+    private var policy: LAPolicy
+    private var e: NSError?
     
     /// Manager Initialize
-    init(context: LAContext = LAContext(), policy: LAPolicy = .deviceOwnerAuthenticationWithBiometrics) {
+    init(context: LAContext = LAContext(), policy: LAPolicy = .deviceOwnerAuthentication) {
         self.context = context
         self.context.localizedFallbackTitle = ""
         self.policy = policy
     }
     
+    /// Manager Initialize
+    deinit {
+        print("BiometricManager Deinitialize")
+    }
+    
     /// 생체인증 실행 가능 여부 판단
-    func canEvaluatePolicy(_ e: NSErrorPointer) -> Bool {
+    private func canEvaluatePolicy(_ e: NSErrorPointer) -> Bool {
         let canEvalutePolicy = self.context.canEvaluatePolicy(self.policy, error: e)
         return canEvalutePolicy
     }
     
     /// 인증 실행
-    func authenticateUser(completion: @escaping (Result<String, Error>) -> Void) {
+    func authenticateUser(completion: @escaping (Result<Bool, Error>) -> Void) {
         guard self.canEvaluatePolicy(&e) else {
             if let e = self.e as? LAError {
                 switch e.code {
@@ -53,17 +59,11 @@ class BiometricManager {
             return
         }
         
-        let loginReason = "Log in with Biometric Authentication"
+        let loginReason = "생체인증 로그인 입니다."
         
         self.context.evaluatePolicy(self.policy, localizedReason: loginReason) { (success, evaluateError) in
-            if success {
-                DispatchQueue.main.async {
-                    completion(.success("true"))
-                }
-            } else {
-                DispatchQueue.main.async {
-                    completion(.failure(BioError.General))
-                }
+            DispatchQueue.main.async {
+                completion(success ? .success(true) : .failure(BioError.EvaluateError))
             }
         }
     }
