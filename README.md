@@ -14,7 +14,7 @@ iOS 생체인증(FaceID, TouchID) 적용 테스트를 위한 프로젝트입니�
 # App Image
 <center>
 
-| <div style="height:500px"> ![TouchIDImage](./Image/TouchID.PNG =x500)</div> | <div style="height:500px"> ![FaceIDImage](./Image/FaceID.PNG =x500) </div> | 
+|<img src="./Image/TouchID.PNG" alt="TouchID" height="500"/> | ![FaceIDImage](./Image/FaceID.PNG =x500) </div> | 
 | - | - |   
 
 </center>
