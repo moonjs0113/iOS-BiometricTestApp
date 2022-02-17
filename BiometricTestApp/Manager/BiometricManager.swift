@@ -16,61 +16,46 @@ enum BioError: Error {
     case NotEnrolled
 }
 
-//protocol LAContextProtocol {
-//    func canEvaluatePolicy(_ : LAPolicy, error: NSErrorPointer) -> Bool
-//    func evaluatePolicy(_ policy: LAPolicy, localizedReason: String, reply: @escaping (Bool, Error?) -> Void)
-//}
-
-
 class BiometricManager {
+    // 생체인증 클래스
     let context: LAContext
+    var policy: LAPolicy
     var e: NSError?
     
-    init(context: LAContext = LAContext() ) {
+    /// Manager Initialize
+    init(context: LAContext = LAContext(), policy: LAPolicy = .deviceOwnerAuthenticationWithBiometrics) {
         self.context = context
         self.context.localizedFallbackTitle = ""
+        self.policy = policy
     }
     
-    
+    /// 생체인증 실행 가능 여부 판단
     func canEvaluatePolicy(_ e: NSErrorPointer) -> Bool {
-        let canEvalutePolicy = self.context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: e)
+        let canEvalutePolicy = self.context.canEvaluatePolicy(self.policy, error: e)
         return canEvalutePolicy
     }
     
-    
+    /// 인증 실행
     func authenticateUser(completion: @escaping (Result<String, Error>) -> Void) {
-//        print(self.context.isCredentialSet(.applicationPassword))
         guard self.canEvaluatePolicy(&e) else {
-            print(self.e as? LAError)
             if let e = self.e as? LAError {
                 switch e.code {
-                case .biometryLockout:
+                case .biometryLockout: // 생체 인증 실패 횟수(5회) 초과
                     completion(.failure(BioError.Lockout))
-                case .biometryNotAvailable:
+                case .biometryNotAvailable: // 생체 인증 권한 없음
                     completion(.failure(BioError.NotPermission))
-                case .biometryNotEnrolled:
+                case .biometryNotEnrolled: // 생체 인증 미등록
                     completion(.failure(BioError.NotEnrolled))
-                default:
+                default: // 생체 인증 정보 미일치 등 일반적 인증 실패
                     completion(.failure(BioError.General))
                 }
             }
             return
         }
         
-        var biometryType = ""
-        switch self.context.biometryType {
-        case .faceID:
-            biometryType = "Face ID"
-        case .touchID:
-            biometryType = "Touch ID"
-        case .none:
-            biometryType = "None"
-        default:
-            biometryType = "Error"
-        }
-        let loginReason = "Log in with \(biometryType)"
+        let loginReason = "Log in with Biometric Authentication"
         
-        self.context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: loginReason) { (success, evaluateError) in
+        self.context.evaluatePolicy(self.policy, localizedReason: loginReason) { (success, evaluateError) in
             if success {
                 DispatchQueue.main.async {
                     completion(.success("true"))
