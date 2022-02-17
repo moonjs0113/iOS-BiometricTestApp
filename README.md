@@ -97,3 +97,7 @@ enum BioError: Error {
 }
 ```
 LAError도 존재하지만 BioError를 작성하여 핸들링하기 쉽도록 함.
+
+---
+
+Lastest Edit 22.02.17
