@@ -9,12 +9,13 @@
 [Platform-image]: https://img.shields.io/badge/Platform-ios-blue.svg?style=flat
 
 iOS 생체인증(FaceID, TouchID) 적용 테스트를 위한 프로젝트입니다.
+인증 클래스의 사용과 인증 실패에 대한 예외처리를 학습합니다.
 
 # Requirments
 - iOS 13.0+
 - Xcode 13.0+
 
-# LocalAuthentication
+# Local Authentication
 [LocalAuthentication Docs](https://developer.apple.com/documentation/localauthentication/)   
 Apple에서 제공하는 Biometric Authentication Framework   
 Xcode내에 별도의 설정없이 import 해서 사용한다.
@@ -54,3 +55,16 @@ UISwitch를 통해서 변경가능하도록 설정
     evaluatePolicy의 localizedReason에 파라미터로 보낸다.
     인증 진행 시 나타나는 Alert에 나타난다.
 
+# Project Description
+## Exception Handling
+### Error Enum
+``` Swift
+enum BioError: Error {
+    case EvaluateError
+    case General
+    case Lockout
+    case NoEvaluate
+    case NotPermission
+    case NotEnrolled
+}
+```

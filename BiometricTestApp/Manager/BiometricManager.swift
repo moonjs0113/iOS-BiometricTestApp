@@ -9,12 +9,12 @@ import Foundation
 import LocalAuthentication
 
 enum BioError: Error {
-    case EvaluateError
-    case General
-    case Lockout
-    case NoEvaluate
-    case NotPermission
-    case NotEnrolled
+    case EvaluateError // 생체 인증 정보 미일치
+    case General // 인증 불가 기기 등 일반적 인증 실패
+    case Lockout // 생체 인증 실패 횟수(5회) 초과
+    case NoEvaluate // 실행 불가
+    case NotPermission // 생체 인증 권한 없음
+    case NotEnrolled // 생체 인증 미등록
 }
 
 class BiometricManager {
@@ -42,18 +42,18 @@ class BiometricManager {
     }
     
     /// 인증 실행
-    func authenticateUser(completion: @escaping (Result<Bool, Error>) -> Void) {
+    func authenticateUser(completion: @escaping (Result<Bool, BioError>) -> Void) {
         guard self.canEvaluatePolicy(&e) else {
             if let e = self.e as? LAError {
                 switch e.code {
-                case .biometryLockout: // 생체 인증 실패 횟수(5회) 초과
-                    completion(.failure(BioError.Lockout))
-                case .biometryNotAvailable: // 생체 인증 권한 없음
-                    completion(.failure(BioError.NotPermission))
-                case .biometryNotEnrolled: // 생체 인증 미등록
-                    completion(.failure(BioError.NotEnrolled))
-                default: // 생체 인증 정보 미일치 등 일반적 인증 실패
-                    completion(.failure(BioError.General))
+                case .biometryLockout:
+                    completion(.failure(.Lockout))
+                case .biometryNotAvailable:
+                    completion(.failure(.NotPermission))
+                case .biometryNotEnrolled:
+                    completion(.failure(.NotEnrolled))
+                default:
+                    completion(.failure(.General))
                 }
             }
             return

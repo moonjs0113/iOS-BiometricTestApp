@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     
     // MARK: - Methods
     /// 인증 시도 결과 핸들링
-    func LAResultHandling(result: Result<Bool, Error>) {
+    func LAResultHandling(result: Result<Bool, BioError>) {
         switch result {
         case .success:
             self.alertLocalAuthenticationSuccess()
@@ -34,15 +34,15 @@ class ViewController: UIViewController {
         self.changeLabelText(result: result)
     }
     
-    func changeLabelText(result: Result<Bool, Error>) {
-        self.canEvaluateLabel.text = "생체 인증 가능 여부: 인증 불가능"
+    func changeLabelText(result: Result<Bool, BioError>) {
+        self.canEvaluateLabel.text = "생체 인증 가능 여부: 인증 가능"
         switch result {
         case .success:
             self.resultLabel.text = "인증 결과: 성공"
         case .failure(let e):
             self.resultLabel.text = "인증 결과: 실패"
-            if (e as? BioError == .EvaluateError) {
-                self.canEvaluateLabel.text = "생체 인증 가능 여부: 인증 가능"
+            if (e != .EvaluateError) {
+                self.canEvaluateLabel.text = "생체 인증 가능 여부: 인증 불가능"
             }
         }
     }
